@@ -7,11 +7,11 @@
       <div class="form-group">
         <label class="control-label col-sm-2" for="inputSharedTeams">Shared teams:</label>
         <div class="col-sm-8">
-            <select class="form-control" id="inputSharedTeams" :disabled="readonly">
-              <option v-for="team in accessibleTeams">
-                {{team}}
-              </option>
-            </select>
+          <select class="form-control" id="inputSharedTeams" :disabled="readonly">
+            <option v-for="team in accessibleTeams">
+              {{team}}
+            </option>
+          </select>
         </div>
       </div>
 
@@ -26,6 +26,7 @@
       <div class="form-group">
         <label class="control-label col-sm-2" for="inputEventStart">Event start:</label>
         <div class="col-sm-3" id="eventStartDateContainer">
+          <datePicker :date="eventStart" :disabled="readonly"></datePicker>
         </div>
         <div class="errors">
 
@@ -35,6 +36,7 @@
       <div class="form-group">
         <label class="control-label col-sm-2" for="inputEventEnd">Event end:</label>
         <div class="col-sm-3" id="eventEndDateContainer">
+          <datePicker :date="eventEnd" :disabled="readonly"></datePicker>
         </div>
         <div class="errors">
 
@@ -44,6 +46,7 @@
       <div class="form-group">
         <label class="control-label col-sm-2" for="inputSelectedPeople">Involved people:</label>
         <div class="col-sm-8">
+          <multiselect v-model="involvedPeople" :options="involvedPeopleOptions" :multiple="true"></multiselect>
           <label class="control-label">Additional people:</label>
           <textarea v-model="additionalPeople" class="form-control" id="inputAdditionalPeople" rows="3" name="additionalPeople" :disabled="readonly"/>
         </div>
@@ -52,6 +55,7 @@
       <div class="form-group">
         <label class="control-label col-sm-2" for="inputSelectedPlaces">Involved places:</label>
         <div class="col-sm-8">
+          <multiselect v-model="involvedPlaces" :options="involvedPlacesOptions" :multiple="true"></multiselect>
           <label class="control-label">Additional places:</label>
           <textarea v-model="additionalPlaces" class="form-control" id="inputAdditionalPlaces" rows="3" name="additionalPlaces" :disabled="readonly"/>
         </div>
@@ -64,17 +68,19 @@
         </div>
       </div>
 
-      </form>
+    </form>
   </div>
 </template>
 
 <script>
   import OpenDiskItem from './OpenDiskItem'
   import OpenPhysicalItem from './OpenPhysicalItem'
+  import datePicker from 'vue-datepicker/vue-datepicker-es6.vue'
+  import multiselect from 'vue-multiselect'
   export default {
     props: [ 'itemType' ],
     components: {
-      OpenDiskItem, OpenPhysicalItem
+      OpenDiskItem, OpenPhysicalItem, datePicker, multiselect
     },
     data () {
       return {
@@ -99,3 +105,4 @@
     }
   }
 </script>
+<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
