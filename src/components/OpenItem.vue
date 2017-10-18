@@ -4,103 +4,119 @@
     <h2 v-else="">Add {{itemType}} Item</h2>
 
     <form class="form-horizontal">
-      <div class="form-group">
-        <label class="control-label col-sm-2" for="inputSharedTeams">Shared teams:</label>
-        <div class="col-sm-8">
-          <select class="form-control" id="inputSharedTeams" :disabled="readonly">
-            <option v-for="team in accessibleTeams">
-              {{team}}
-            </option>
-          </select>
-        </div>
-      </div>
 
-      <div v-if="itemType == 'Disk'">
-        <OpenDiskItem></OpenDiskItem>
+      <MultiselectField fieldName="Shared teams" :options="sharedTeamsOptions" @input="sharedTeams = arguments[0]"></MultiselectField>
+
+      <div v-if="itemType == 'Digital'">
+          <TextField fieldName="Name" :mandatory="true" @input="itemName = arguments[0]"></TextField>
+          <TextField fieldName="Type" :mandatory="true" @input="fileType = arguments[0]"></TextField>
+          <TextField fieldName="Size" :mandatory="true" @input="fileSize = arguments[0]"></TextField>
       </div>
       <div v-if="itemType == 'Physical'">
-        <OpenPhysicalItem></OpenPhysicalItem>
-      </div>
-
-
-      <div class="form-group">
-        <label class="control-label col-sm-2" for="inputEventStart">Event start:</label>
-        <div class="col-sm-3" id="eventStartDateContainer">
-          <datePicker :date="eventStart" :disabled="readonly"></datePicker>
-        </div>
-        <div class="errors">
-
+        <div id="openPhysicalItem">
+          <div class="form-group">
+            <label class="control-label col-sm-2" for="inputItemName">Picture:</label>
+            <div class="col-sm-6">
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="form-group">
-        <label class="control-label col-sm-2" for="inputEventEnd">Event end:</label>
-        <div class="col-sm-3" id="eventEndDateContainer">
-          <datePicker :date="eventEnd" :disabled="readonly"></datePicker>
-        </div>
-        <div class="errors">
+      <DateField fieldName="Event start" @input="eventStart = arguments[0]"></DateField>
+      <DateField fieldName="Event end" @input="eventEnd = arguments[0]"></DateField>
 
-        </div>
-      </div>
+      <MultiselectField fieldName="Involved people" :options="involvedPeopleOptions" @input="involvedPeople = arguments[0]"></MultiselectField>
+      <TextareaField fieldName="Additional people" @input="additionalPeople = arguments[0]"></TextareaField>
 
-      <div class="form-group">
-        <label class="control-label col-sm-2" for="inputSelectedPeople">Involved people:</label>
-        <div class="col-sm-8">
-          <multiselect v-model="involvedPeople" :options="involvedPeopleOptions" :multiple="true"></multiselect>
-          <label class="control-label">Additional people:</label>
-          <textarea v-model="additionalPeople" class="form-control" id="inputAdditionalPeople" rows="3" name="additionalPeople" :disabled="readonly"/>
-        </div>
-      </div>
+      <MultiselectField fieldName="Involved places" :options="involvedPlaceOptions" @input="involvedPlaces = arguments[0]"></MultiselectField>
+      <TextareaField fieldName="Additional places" @input="additionalPlaces = arguments[0]"></TextareaField>
 
-      <div class="form-group">
-        <label class="control-label col-sm-2" for="inputSelectedPlaces">Involved places:</label>
-        <div class="col-sm-8">
-          <multiselect v-model="involvedPlaces" :options="involvedPlacesOptions" :multiple="true"></multiselect>
-          <label class="control-label">Additional places:</label>
-          <textarea v-model="additionalPlaces" class="form-control" id="inputAdditionalPlaces" rows="3" name="additionalPlaces" :disabled="readonly"/>
-        </div>
-      </div>
+      <TextareaField fieldName="Description" @input="description = arguments[0]"></TextareaField>
 
-      <div class="form-group">
-        <label class="control-label col-sm-2" for="inputDescription">Description:</label>
-        <div class="col-sm-8">
-          <textarea class="form-control" id="inputDescription" rows="10" name="description" :disabled="readonly"></textarea>
-        </div>
-      </div>
+      <button class="btn btn-primary" name="btnAdd" @click="addItem" >Add</button>
 
     </form>
   </div>
 </template>
 
 <script>
-  import OpenDiskItem from './OpenDiskItem'
-  import OpenPhysicalItem from './OpenPhysicalItem'
-  import datePicker from 'vue-datepicker/vue-datepicker-es6.vue'
-  import multiselect from 'vue-multiselect'
+  import axios from 'axios'
+  import TextField from './fields/TextField'
+  import DateField from './fields/DateField'
+  import MultiselectField from './fields/MultiselectField'
+  import TextareaField from './fields/TextareaField'
+
   export default {
     props: [ 'itemType' ],
     components: {
-      OpenDiskItem, OpenPhysicalItem, datePicker, multiselect
+      TextField, DateField, MultiselectField, TextareaField
     },
     data () {
       return {
-        involvedPeople: '',
-        involvedPeopleOptions: ['haihan', 'yu', 'sitong'],
+        itemName: '',
+        fileType: '',
+        fileSize: '',
+        sharedTeams: [],
+        sharedTeamsOptions: ['2', '3'],
+        involvedPeople: [],
+        involvedPeopleOptions: ['1', '2'],
         additionalPeople: '',
-        involvedPlaces: '',
-        involvedPlacesOptions: ['china', 'netherlands', 'changsha'],
+        involvedPlaces: [],
+        involvedPlaceOptions: ['1', '2', '3'],
         additionalPlaces: '',
         itemId: null,
         readonly: false,
+        description: '',
         accessibleTeams: [
           'team1', 'team2', 'team3'
         ],
-        eventStart: {
-          time: ''
-        },
-        eventEnd: {
-          time: ''
+        eventStart: '',
+        eventEnd: ''
+      }
+    },
+    created () {
+      var config = {
+        method: 'GET',
+        baseURL: this.$store.state.domain,
+        url: '/user/' + this.$store.state.userInfo.userId + '/toAddItem',
+        headers: {
+          'X-Auth-Token': this.$store.state.token
         }
+      }
+      axios.request(config)
+        .then(function (response) {
+          this.involvedPeopleOptions = response.data.involvedPeopleOptions
+          this.involvedPlacesOptions = response.data.involvedPlacesOptions
+        })
+        .catch(function (error) {
+          console.log(error)
+        })
+    },
+    methods: {
+      addItem () {
+        var router = this.$router
+        var config = {
+          method: 'POST',
+          baseURL: this.$store.state.domain,
+          url: '/item',
+          data: {
+            itemType: this.itemType,
+            involvedPeople: this.involvedPeople,
+            involvedPlaces: this.involvedPlaces,
+            eventStart: this.eventStart,
+            eventEnd: this.eventEnd
+          },
+          headers: {
+            'X-Auth-Token': this.$store.state.token
+          }
+        }
+        axios.request(config)
+          .then(function (response) {
+            router.push('/openDiskItem')
+          })
+          .catch(function (error) {
+            console.log(error)
+          })
       }
     }
   }

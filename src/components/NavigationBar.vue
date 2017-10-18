@@ -4,6 +4,7 @@
       <div class="navbar-header">
         <router-link :to="'/welcome'" class="navbar-brand">FindIt-Vue</router-link>
       </div>
+      <template v-if="this.$store.state.isLoggedOn">
         <ul class="nav navbar-nav">
           <li class="dropdown" v-bind:class="{active: openItem}">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
@@ -44,6 +45,7 @@
             <a><span class="glyphicon glyphicon-log-out"></span> Logout</a>
           </li>
         </ul>
+      </template>
     </div>
   </nav>
 </template>
@@ -60,7 +62,7 @@
         return this.activeMenu === 'openPhysicalItem' || this.activeMenu === 'openDiskItem'
       },
       userName () {
-        return 'DummyName'
+        return this.$store.state.userInfo.userName
       }
     },
     methods: {
