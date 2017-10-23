@@ -22,7 +22,6 @@
   </div>
 </template>
 <script>
-  import axios from 'axios'
   export default {
     name: 'Login',
     props: [ 'errorMsg' ],
@@ -51,7 +50,7 @@
               'X-Auth-Password': this.password
             }
           }
-          axios.request(config)
+          this.$axios.request(config)
             .then(function (response) {
               store.state.userInfo.userId = response.data.userId
               store.state.userInfo.userName = response.data.userName

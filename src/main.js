@@ -4,12 +4,15 @@ import Vue from 'vue'
 import App from './App'
 import Vuex from 'vuex'
 import VueRouter from 'vue-router'
+import axios from 'axios'
 
 import Welcome from './components/Welcome'
 import Login from './components/Login'
 import OpenItem from './components/OpenItem'
 import ListItems from './components/ListItems'
 import UserInfo from './components/UserInfo'
+
+Object.defineProperty(Vue.prototype, '$axios', { value: axios })
 
 Vue.config.productionTip = false
 Vue.use(VueRouter)
@@ -75,7 +78,7 @@ new Vue({
     checkLogin () {
       console.log('userToken is ' + this.$store.state.userToken)
       if (this.$store.state.token === '') {
-        this.$router.push('/openDiskItem')
+        this.$router.push('/login')
       } else {
         this.$router.push('/userInfo')
       }

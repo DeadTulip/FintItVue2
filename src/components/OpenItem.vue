@@ -33,9 +33,8 @@
 
       <TextareaField fieldName="Description" @input="description = arguments[0]"></TextareaField>
 
-      <button class="btn btn-primary" name="btnAdd" @click="addItem" >Add</button>
-
     </form>
+    <button class="btn btn-primary" name="btnAdd" @click="addItem" >Add</button>
   </div>
 </template>
 
@@ -57,12 +56,12 @@
         fileType: '',
         fileSize: '',
         sharedTeams: [],
-        sharedTeamsOptions: ['2', '3'],
+        sharedTeamsOptions: [],
         involvedPeople: [],
-        involvedPeopleOptions: ['1', '2'],
+        involvedPeopleOptions: [],
         additionalPeople: '',
         involvedPlaces: [],
-        involvedPlaceOptions: ['1', '2', '3'],
+        involvedPlaceOptions: [],
         additionalPlaces: '',
         itemId: null,
         readonly: false,
@@ -76,17 +75,21 @@
     },
     created () {
       var config = {
-        method: 'GET',
+        method: 'POST',
         baseURL: this.$store.state.domain,
-        url: '/user/' + this.$store.state.userInfo.userId + '/toAddItem',
+        url: '/item/toAdd',
+        data: {
+          userId: this.$store.state.userInfo.userId
+        },
         headers: {
           'X-Auth-Token': this.$store.state.token
         }
       }
+      const vm = this
       axios.request(config)
         .then(function (response) {
-          this.involvedPeopleOptions = response.data.involvedPeopleOptions
-          this.involvedPlacesOptions = response.data.involvedPlacesOptions
+          vm.involvedPeopleOptions = response.data.involvedPeopleOptions
+          vm.involvedPlaceOptions = response.data.involvedPlaceOptions
         })
         .catch(function (error) {
           console.log(error)
@@ -99,13 +102,7 @@
           method: 'POST',
           baseURL: this.$store.state.domain,
           url: '/item',
-          data: {
-            itemType: this.itemType,
-            involvedPeople: this.involvedPeople,
-            involvedPlaces: this.involvedPlaces,
-            eventStart: this.eventStart,
-            eventEnd: this.eventEnd
-          },
+          data: this.getAddItemData(),
           headers: {
             'X-Auth-Token': this.$store.state.token
           }
@@ -117,6 +114,50 @@
           .catch(function (error) {
             console.log(error)
           })
+      },
+      getAddItemData () {
+        var data = {}
+        if (this.itemType === 'Digital') {
+          data = {
+            owner: {
+              userId: this.$store.state.userInfo.userId,
+              username: this.$store.state.userInfo.userName
+            },
+            itemType: this.itemType,
+            name: this.itemName,
+            fileName: this.itemName,
+            originalFileName: this.itemName + '_original',
+            eventStartTime: this.eventStart,
+            eventEndTime: this.eventEnd,
+            involvedPeople: this.getInvolvedPeople(),
+            involvedPlaces: this.getInvolvedPlaces(),
+            description: this.description
+          }
+        } else {
+
+        }
+        return data
+      },
+      getInvolvedPeople () {
+        var ip = []
+        ip.concat(this.involvedPeople)
+        var apArray = this.getValueArray(this.additionalPeople)
+        ip.concat(apArray)
+        return ip
+      },
+      getInvolvedPlaces () {
+        var ip = []
+        ip.concat(this.involvedPlaces)
+        var apArray = this.getValueArray(this.additionalPlaces)
+        ip.concat(apArray)
+        return ip
+      },
+      getValueArray (value) {
+        var valueArray = value.split(',')
+        for (let i = 0; i < valueArray.length; i++) {
+          valueArray[i] = valueArray[i].trim()
+        }
+        return valueArray
       }
     }
   }
