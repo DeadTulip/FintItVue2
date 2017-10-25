@@ -11,6 +11,7 @@ import Login from './components/Login'
 import OpenItem from './components/OpenItem'
 import ListItems from './components/ListItems'
 import UserInfo from './components/UserInfo'
+import OpenTeam from './components/OpenTeam'
 
 Object.defineProperty(Vue.prototype, '$axios', { value: axios })
 
@@ -37,12 +38,15 @@ const router = new VueRouter({
     component: OpenItem,
     props: { itemType: 'Physical' }
   }, {
-    path: '/openDiskItem',
+    path: '/openDigitalItem/:itemId?',
     component: OpenItem,
     props: { itemType: 'Digital' }
   }, {
     path: '/listItems',
     component: ListItems
+  }, {
+    path: '/team',
+    component: OpenTeam
   }]
 })
 

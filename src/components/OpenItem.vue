@@ -26,15 +26,18 @@
       <DateField fieldName="Event end" @input="eventEnd = arguments[0]"></DateField>
 
       <MultiselectField fieldName="Involved people" :options="involvedPeopleOptions" @input="involvedPeople = arguments[0]"></MultiselectField>
-      <TextareaField fieldName="Additional people" @input="additionalPeople = arguments[0]"></TextareaField>
+      <TextareaField fieldName="Additional people" v-model="additionalPeople"></TextareaField>
 
       <MultiselectField fieldName="Involved places" :options="involvedPlaceOptions" @input="involvedPlaces = arguments[0]"></MultiselectField>
-      <TextareaField fieldName="Additional places" @input="additionalPlaces = arguments[0]"></TextareaField>
+      <TextareaField fieldName="Additional places" v-model="additionalPlaces"></TextareaField>
 
-      <TextareaField fieldName="Description" @input="description = arguments[0]"></TextareaField>
+      <TextareaField fieldName="Description" v-model="description"></TextareaField>
 
     </form>
-    <button class="btn btn-primary" name="btnAdd" @click="addItem" >Add</button>
+    <button class="btn btn-primary" name="btnAdd" @click="addItem" >
+      <label v-if="itemId != null">Update</label>
+      <label v-else>Add</label>
+    </button>
   </div>
 </template>
 
@@ -52,6 +55,7 @@
     },
     data () {
       return {
+        itemId: this.$route.params.itemId,
         itemName: '',
         fileType: '',
         fileSize: '',
@@ -63,7 +67,6 @@
         involvedPlaces: [],
         involvedPlaceOptions: [],
         additionalPlaces: '',
-        itemId: null,
         readonly: false,
         description: '',
         accessibleTeams: [
@@ -94,6 +97,27 @@
         .catch(function (error) {
           console.log(error)
         })
+
+      if (this.itemId != null) {
+        var configForGettingItem = {
+          method: 'GET',
+          baseURL: this.$store.state.domain,
+          url: '/item/' + this.itemId,
+          headers: {
+            'X-Auth-Token': this.$store.state.token
+          }
+        }
+        axios.request(configForGettingItem)
+          .then(function (response) {
+            vm.itemName = response.data.name
+            vm.fileType = response.data.fileType
+            vm.fileSize = response.data.fileSize
+            vm.description = response.data.description
+          })
+          .catch(function (error) {
+            console.log(error)
+          })
+      }
     },
     methods: {
       addItem () {
@@ -109,7 +133,7 @@
         }
         axios.request(config)
           .then(function (response) {
-            router.push('/openDiskItem')
+            router.push('/openDigitalItem')
           })
           .catch(function (error) {
             console.log(error)
@@ -129,8 +153,8 @@
             originalFileName: this.itemName + '_original',
             eventStartTime: this.eventStart,
             eventEndTime: this.eventEnd,
-            involvedPeople: this.getInvolvedPeople(),
-            involvedPlaces: this.getInvolvedPlaces(),
+            involvedPeople: '',
+            involvedPlaces: '',
             description: this.description
           }
         } else {

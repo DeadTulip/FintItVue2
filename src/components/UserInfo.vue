@@ -1,17 +1,15 @@
 <template>
   <div class="container">
     <h2>{{user.username}}</h2>
-    <div><label>Owned items:</label> <a href="#">{{createdItemCount}}</a> </div>
-    <div><label>Accessible items:</label> <a href="#">{{accessibleItemCount}}</a> </div>
-    <label>My teams</label>
-    <form>
+    <label>Created teams</label>
+
       <div class="input-group">
-        <input type="text" class="form-control" name="teamName">
+        <input type="text" class="form-control" v-model="teamName">
                 <span class="input-group-btn">
-                    <button class="btn btn-primary" type="submit">Create team</button>
+                    <button class="btn btn-primary" type="submit" @click="createTeam">Create team</button>
                 </span>
       </div>
-    </form>
+
     <table class="table table-bordered">
       <thead>
       <tr>
@@ -21,13 +19,13 @@
       </tr>
       </thead>
       <tbody>
-        <tr v-for="(team, index) in ownedTeams">
+        <tr v-for="(team, index) in createdTeams">
           <td>{{index+1}}</td>
           <td>{{team.teamName}}</td>
           <td>
-            <a href="#">
-              <span class="glyphicon glyphicon-cog"></span>
-            </a>
+              <router-link :to="'/team'">
+                  <span class="glyphicon glyphicon-cog"></span>
+              </router-link>
           </td>
         </tr>
       </tbody>
@@ -59,22 +57,63 @@
 </template>
 
 <script>
+  import axios from 'axios'
   export default {
     data () {
       return {
         createdItemCount: 10,
         accessibleItemCount: 20,
         user: {
-          username: 'Me'
+          username: this.$store.state.userInfo.userName
         },
-        ownedTeams: [
-          { teamName: 'team1' },
-          { teamName: 'team2' }
-        ],
-        joinedTeams: [
-          { teamName: 'team3' },
-          { teamName: 'team4' }
-        ]
+        teamName: '',
+        createdTeams: [],
+        joinedTeams: []
+      }
+    },
+    created () {
+      const vm = this
+      var config = {
+        method: 'GET',
+        baseURL: this.$store.state.domain,
+        url: '/user/' + this.$store.state.userInfo.userId + '/detail',
+        headers: {
+          'X-Auth-Token': this.$store.state.token
+        }
+      }
+      axios.request(config)
+        .then(function (response) {
+          vm.createdTeams = response.data.createdTeams
+          vm.joinedTeams = response.data.joindTeams
+        })
+        .catch(function (error) {
+          console.log(error)
+        })
+    },
+    methods: {
+      createTeam () {
+        const vm = this
+        var config = {
+          method: 'POST',
+          baseURL: this.$store.state.domain,
+          url: '/team',
+          data: {
+            teamName: vm.teamName,
+            creator: {
+              userId: this.$store.state.userInfo.userId
+            }
+          },
+          headers: {
+            'X-Auth-Token': this.$store.state.token
+          }
+        }
+        axios.request(config)
+          .then(function (response) {
+            vm.createdTeams.push({'teamName': vm.teamName})
+          })
+          .catch(function (error) {
+            console.log(error)
+          })
       }
     }
   }

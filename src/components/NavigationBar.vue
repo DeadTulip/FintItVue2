@@ -13,8 +13,8 @@
             </a>
             <ul class="dropdown-menu">
               <li>
-                <router-link :to="'/openDiskItem'">
-                  <span @click="clickOpenDiskItem">Add Disk Item</span>
+                <router-link :to="'/openDigitalItem'">
+                  <span @click="clickOpenDigitalItem">Add Disk Item</span>
                 </router-link>
               </li>
               <li>
@@ -59,15 +59,15 @@
     },
     computed: {
       openItem () {
-        return this.activeMenu === 'openPhysicalItem' || this.activeMenu === 'openDiskItem'
+        return this.activeMenu === 'openPhysicalItem' || this.activeMenu === 'openDigitalItem'
       },
       userName () {
         return this.$store.state.userInfo.userName
       }
     },
     methods: {
-      clickOpenDiskItem () {
-        this.activeMenu = 'openDiskItem'
+      clickOpenDigitalItem () {
+        this.activeMenu = 'openDigitalItem'
       },
       clickOpenPhysicalItem () {
         this.activeMenu = 'openPhysicalItem'

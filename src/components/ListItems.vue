@@ -16,12 +16,14 @@
         <tr v-for="(item, index) in items">
           <td>{{index+1}}</td>
           <td>{{item.name}}</td>
-          <td>{{item.dateCreated}}</td>
-          <td>{{item.dateUpdated}}</td>
-          <td>{{item.location['@type']}}</td>
-          <td>{{item.ownerName}}</td>
+          <td></td>
+          <td></td>
+          <td>{{item.itemType}}</td>
+          <td>{{item.owner.username}}</td>
           <td>
-
+            <router-link :to="'/openDigitalItem/' + item.itemId">
+              <span class="glyphicon glyphicon-edit"></span>
+            </router-link>
           </td>
         </tr>
       </tbody>
@@ -30,11 +32,30 @@
 </template>
 
 <script type="text/javascript">
+  import axios from 'axios'
   export default {
     data () {
       return {
         items: []
       }
+    },
+    created () {
+      var config = {
+        method: 'GET',
+        baseURL: this.$store.state.domain,
+        url: '/user/' + this.$store.state.userInfo.userId + '/accessibleItems',
+        headers: {
+          'X-Auth-Token': this.$store.state.token
+        }
+      }
+      const vm = this
+      axios.request(config)
+        .then(function (response) {
+          vm.items = response.data
+        })
+        .catch(function (error) {
+          console.log(error)
+        })
     }
   }
 </script>
