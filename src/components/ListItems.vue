@@ -43,7 +43,7 @@
       var config = {
         method: 'GET',
         baseURL: this.$store.state.domain,
-        url: '/user/' + this.$store.state.userInfo.userId + '/accessibleItems',
+        url: '/user/' + this.$store.state.userInfo.userId + '/items',
         headers: {
           'X-Auth-Token': this.$store.state.token
         }

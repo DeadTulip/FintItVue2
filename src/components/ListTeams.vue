@@ -20,7 +20,7 @@
       </tr>
       </thead>
       <tbody>
-        <tr v-for="(team, index) in createdTeams">
+        <tr v-for="(team, index) in teams">
           <td>{{index+1}}</td>
           <td>{{team.teamName}}</td>
           <td>
@@ -33,28 +33,6 @@
       </tbody>
     </table>
 
-
-    <label>Joined Teams</label>
-    <table class="table table-bordered">
-      <thead>
-      <tr>
-        <th>#</th>
-        <th data-sortable="true">name</th>
-        <th>leave</th>
-      </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(team, index) in joinedTeams">
-          <td>{{index+1}}</td>
-          <td>{{team.teamName}}</td>
-          <td>
-            <a href="#">
-              <span class="glyphicon glyphicon-log-out"></span>
-            </a>
-          </td>
-        </tr>
-      </tbody>
-    </table>
   </div>
 </template>
 
@@ -69,8 +47,7 @@
           username: this.$store.state.userInfo.userName
         },
         teamName: '',
-        createdTeams: [],
-        joinedTeams: [],
+        teams: [],
         createTeamErrorMessage: ''
       }
     },
@@ -79,15 +56,14 @@
       var config = {
         method: 'GET',
         baseURL: this.$store.state.domain,
-        url: '/user/' + this.$store.state.userInfo.userId + '/detail',
+        url: '/user/' + this.$store.state.userInfo.userId + '/teams',
         headers: {
           'X-Auth-Token': this.$store.state.token
         }
       }
       axios.request(config)
         .then(function (response) {
-          vm.createdTeams = response.data.createdTeams
-          vm.joinedTeams = response.data.joindTeams
+          vm.teams = response.data
         })
         .catch(function (error) {
           alert(error)
@@ -113,7 +89,7 @@
         axios.request(config)
           .then(function (response) {
             vm.createTeamErrorMessage = ''
-            vm.createdTeams.push({'teamName': vm.teamName})
+            vm.teams.push({'teamName': vm.teamName})
           })
           .catch(function (error) {
             vm.createTeamErrorMessage = error.response.data.errorMessage

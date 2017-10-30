@@ -13,9 +13,9 @@
         </tr>
         </thead>
         <tbody>
-          <tr v-for="(member, index) in members">
+          <tr v-for="(member, index) in members" :class="{highlight: toHighlightMember === member.username}">
             <td>{{index+1}}</td>
-            <td>{{member.name}}</td>
+            <td>{{member.username}}</td>
             <td>{{member.itemCount}}</td>
             <td>
               <span class="glyphicon glyphicon-remove"></span>
@@ -28,7 +28,7 @@
         <strong>Error: </strong> {{addMemberErrorMessage}}
       </div>
       <div class="input-group">
-        <input type="text" v-model="addMemberName" class="form-control">
+        <input type="text" v-model="toAddMemberName" class="form-control">
           <span class="input-group-btn">
               <button class="btn btn-primary" @click="addMember">add member</button>
           </span>
@@ -44,7 +44,8 @@
         teamId: this.$route.params.teamId,
         teamName: '',
         creatorName: '',
-        addMemberName: '',
+        toAddMemberName: '',
+        toHighlightMember: '',
         members: [],
         addMemberErrorMessage: ''
       }
@@ -71,29 +72,45 @@
     },
     methods: {
       addMember () {
-        var config = {
-          method: 'PUT',
-          baseURL: this.$store.state.domain,
-          url: '/team/' + this.teamId + '/addMember/' + this.addMemberName,
-          headers: {
-            'X-Auth-Token': this.$store.state.token
+        const vm = this
+        if (!this.containsMember(this.toAddMemberName)) {
+          var config = {
+            method: 'PUT',
+            baseURL: this.$store.state.domain,
+            url: '/team/' + this.teamId + '/addMember/' + this.toAddMemberName,
+            headers: {
+              'X-Auth-Token': this.$store.state.token
+            }
+          }
+          axios.request(config)
+            .then(function (response) {
+              vm.addMemberErrorMessage = ''
+              vm.members.push(response.data)
+              vm.toHighlightMember = response.data.userId
+            })
+            .catch(function (error) {
+              vm.toHighlightMember = ''
+              if (error.response.status === 404) {
+                vm.addMemberErrorMessage = error.response.data.errorMessage
+              }
+            })
+        } else {
+          vm.toHighlightMember = this.toAddMemberName
+        }
+      },
+      containsMember (username) {
+        for (var i = 0; i < this.members.length; i++) {
+          if (this.members[i].username === username) {
+            return true
           }
         }
-        const vm = this
-        axios.request(config)
-          .then(function (response) {
-            vm.addMemberErrorMessage = ''
-            vm.teamName = response.data.teamName
-            vm.members = response.data.members
-            vm.creatorName = response.data.creator.username
-          })
-          .catch(function (error) {
-            alert(error.response.status)
-            if (error.response.status === 404) {
-              vm.addMemberErrorMessage = 'User[' + vm.addMemberName + '] does not exist.'
-            }
-          })
+        return false
       }
     }
   }
 </script>
+<style>
+  .highlight {
+    background-color: #CFF5FF;
+  }
+</style>
