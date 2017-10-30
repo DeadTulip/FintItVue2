@@ -12,6 +12,7 @@ import OpenItem from './components/OpenItem'
 import ListItems from './components/ListItems'
 import UserInfo from './components/UserInfo'
 import OpenTeam from './components/OpenTeam'
+import ListUsers from './components/ListUsers'
 
 Object.defineProperty(Vue.prototype, '$axios', { value: axios })
 
@@ -45,8 +46,11 @@ const router = new VueRouter({
     path: '/listItems',
     component: ListItems
   }, {
-    path: '/team',
+    path: '/team/:teamId?',
     component: OpenTeam
+  }, {
+    path: '/listUsers',
+    component: ListUsers
   }]
 })
 
@@ -55,7 +59,8 @@ const store = new Vuex.Store({
     domain: 'http://localhost:8090',
     userInfo: {
       userId: '',
-      userName: ''
+      userName: '',
+      userRoles: []
     },
     token: '',
     isLoggedOn: false

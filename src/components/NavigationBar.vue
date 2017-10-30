@@ -4,7 +4,7 @@
       <div class="navbar-header">
         <router-link :to="'/welcome'" class="navbar-brand">FindIt-Vue</router-link>
       </div>
-      <template v-if="this.$store.state.isLoggedOn">
+      <template v-if="this.$store.state.isLoggedOn && !this.$store.state.userInfo.userRoles.includes('ADMIN')">
         <ul class="nav navbar-nav">
           <li class="dropdown" v-bind:class="{active: openItem}">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">

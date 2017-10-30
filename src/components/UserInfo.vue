@@ -2,7 +2,9 @@
   <div class="container">
     <h2>{{user.username}}</h2>
     <label>Created teams</label>
-
+     <div v-if="createTeamErrorMessage" class="alert alert-danger">
+       <strong>Error: </strong> {{createTeamErrorMessage}}
+     </div>
       <div class="input-group">
         <input type="text" class="form-control" v-model="teamName">
                 <span class="input-group-btn">
@@ -23,9 +25,10 @@
           <td>{{index+1}}</td>
           <td>{{team.teamName}}</td>
           <td>
-              <router-link :to="'/team'">
+              <router-link :to="'/team/' + team.teamId">
                   <span class="glyphicon glyphicon-cog"></span>
               </router-link>
+              <span class="glyphicon glyphicon-remove clickable" @click="deleteTeam(index)"></span>
           </td>
         </tr>
       </tbody>
@@ -68,7 +71,8 @@
         },
         teamName: '',
         createdTeams: [],
-        joinedTeams: []
+        joinedTeams: [],
+        createTeamErrorMessage: ''
       }
     },
     created () {
@@ -87,7 +91,7 @@
           vm.joinedTeams = response.data.joindTeams
         })
         .catch(function (error) {
-          console.log(error)
+          alert(error)
         })
     },
     methods: {
@@ -109,7 +113,26 @@
         }
         axios.request(config)
           .then(function (response) {
+            vm.createTeamErrorMessage = ''
             vm.createdTeams.push({'teamName': vm.teamName})
+          })
+          .catch(function (error) {
+            vm.createTeamErrorMessage = error.response.data.errorMessage
+          })
+      },
+      deleteTeam (index) {
+        const vm = this
+        var config = {
+          method: 'DELETE',
+          baseURL: this.$store.state.domain,
+          url: '/team/' + this.createdTeams[index].teamId,
+          headers: {
+            'X-Auth-Token': this.$store.state.token
+          }
+        }
+        axios.request(config)
+          .then(function (response) {
+            vm.createdTeams.splice(index, 1)
           })
           .catch(function (error) {
             console.log(error)
@@ -118,3 +141,9 @@
     }
   }
 </script>
+<style scoped>
+.clickable {
+  cursor: pointer;
+  color: #337ab7;
+}
+</style>

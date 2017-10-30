@@ -24,25 +24,75 @@
         </tbody>
       </table>
       <p>
+      <div v-if="addMemberErrorMessage" class="alert alert-danger">
+        <strong>Error: </strong> {{addMemberErrorMessage}}
+      </div>
       <div class="input-group">
-        <input type="text" class="form-control">
-                <span class="input-group-btn">
-                    <button class="btn btn-primary" type="submit">add member</button>
-                </span>
+        <input type="text" v-model="addMemberName" class="form-control">
+          <span class="input-group-btn">
+              <button class="btn btn-primary" @click="addMember">add member</button>
+          </span>
       </div>
     </div>
 </template>
 
 <script>
+  import axios from 'axios'
   export default {
     data () {
       return {
-        teamName: 'tempTeamName',
-        creatorName: 'teampCreatorName',
-        members: [
-          {name: 'name1', itemCount: 1},
-          {name: 'name2', itemCount: 2}
-        ]
+        teamId: this.$route.params.teamId,
+        teamName: '',
+        creatorName: '',
+        addMemberName: '',
+        members: [],
+        addMemberErrorMessage: ''
+      }
+    },
+    created () {
+      var config = {
+        method: 'GET',
+        baseURL: this.$store.state.domain,
+        url: '/team/' + this.teamId,
+        headers: {
+          'X-Auth-Token': this.$store.state.token
+        }
+      }
+      const vm = this
+      axios.request(config)
+        .then(function (response) {
+          vm.teamName = response.data.teamName
+          vm.members = response.data.members
+          vm.creatorName = response.data.creator.username
+        })
+        .catch(function (error) {
+          console.log(error)
+        })
+    },
+    methods: {
+      addMember () {
+        var config = {
+          method: 'PUT',
+          baseURL: this.$store.state.domain,
+          url: '/team/' + this.teamId + '/addMember/' + this.addMemberName,
+          headers: {
+            'X-Auth-Token': this.$store.state.token
+          }
+        }
+        const vm = this
+        axios.request(config)
+          .then(function (response) {
+            vm.addMemberErrorMessage = ''
+            vm.teamName = response.data.teamName
+            vm.members = response.data.members
+            vm.creatorName = response.data.creator.username
+          })
+          .catch(function (error) {
+            alert(error.response.status)
+            if (error.response.status === 404) {
+              vm.addMemberErrorMessage = 'User[' + vm.addMemberName + '] does not exist.'
+            }
+          })
       }
     }
   }
