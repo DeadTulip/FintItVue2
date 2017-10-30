@@ -60,7 +60,7 @@
               if (store.state.userInfo.userRoles.includes('ADMIN')) {
                 router.push('/listUsers')
               } else {
-                router.push('/userInfo')
+                router.push('/listTeams')
               }
             })
             .catch(function (error) {

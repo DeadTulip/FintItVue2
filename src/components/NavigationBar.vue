@@ -31,15 +31,17 @@
               </span>
             </router-link>
           </li>
-
-        </ul>
-        <ul class="nav navbar-nav navbar-right">
-          <li v-bind:class="{active: activeMenu == 'userInfo'}">
-            <router-link :to="'/userInfo'">
-              <span @click="clickUserInfo">
-                <span class="glyphicon glyphicon-user"></span> {{userName}}
+          <li v-bind:class="{active: activeMenu == 'listTeams'}">
+            <router-link :to="'/listTeams'">
+              <span @click="clickListTeams">
+                <span class="glyphicon glyphicon-th-list"></span> List Teams
               </span>
             </router-link>
+          </li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li>
+            <a><span class="glyphicon glyphicon-user"></span> {{userName}}</a>
           </li>
           <li>
             <a><span class="glyphicon glyphicon-log-out"></span> Logout</a>
@@ -75,8 +77,8 @@
       clickListItems () {
         this.activeMenu = 'listItems'
       },
-      clickUserInfo () {
-        this.activeMenu = 'userInfo'
+      clickListTeams () {
+        this.activeMenu = 'listTeams'
       }
     }
   }

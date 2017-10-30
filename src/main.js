@@ -10,7 +10,7 @@ import Welcome from './components/Welcome'
 import Login from './components/Login'
 import OpenItem from './components/OpenItem'
 import ListItems from './components/ListItems'
-import UserInfo from './components/UserInfo'
+import ListTeams from './components/ListTeams'
 import OpenTeam from './components/OpenTeam'
 import ListUsers from './components/ListUsers'
 
@@ -32,8 +32,8 @@ const router = new VueRouter({
     path: '/welcome',
     component: Welcome
   }, {
-    path: '/userInfo',
-    component: UserInfo
+    path: '/listTeams',
+    component: ListTeams
   }, {
     path: '/openPhysicalItem',
     component: OpenItem,
@@ -89,7 +89,7 @@ new Vue({
       if (this.$store.state.token === '') {
         this.$router.push('/login')
       } else {
-        this.$router.push('/userInfo')
+        this.$router.push('/listTeams')
       }
     }
   }

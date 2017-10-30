@@ -1,6 +1,5 @@
 <template>
   <div class="container">
-    <h2>{{user.username}}</h2>
     <label>Created teams</label>
      <div v-if="createTeamErrorMessage" class="alert alert-danger">
        <strong>Error: </strong> {{createTeamErrorMessage}}
