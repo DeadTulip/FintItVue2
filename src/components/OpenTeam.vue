@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-      <h2>{{teamName}}</h2>
+      <h2>Team: {{teamName}}</h2>
       <div><label>Creator</label> {{creatorName}}</div>
       <label>Members</label>
       <table class="table table-bordered">
@@ -18,7 +18,7 @@
             <td>{{member.username}}</td>
             <td>{{member.itemCount}}</td>
             <td>
-              <span class="glyphicon glyphicon-remove"></span>
+              <span class="glyphicon glyphicon-remove clickable"  @click="removeMember(index)"></span>
             </td>
           </tr>
         </tbody>
@@ -105,12 +105,35 @@
           }
         }
         return false
+      },
+      removeMember (index) {
+        this.addMemberErrorMessage = ''
+        const vm = this
+        var config = {
+          method: 'PUT',
+          baseURL: this.$store.state.domain,
+          url: '/team/' + this.teamId + '/removeMember/' + this.members[index].userId,
+          headers: {
+            'X-Auth-Token': this.$store.state.token
+          }
+        }
+        axios.request(config)
+          .then(function (response) {
+            vm.members.splice(index, 1)
+          })
+          .catch(function (error) {
+            console.log(error)
+          })
       }
     }
   }
 </script>
-<style>
+<style scoped>
   .highlight {
     background-color: #CFF5FF;
   }
+  .clickable {
+     cursor: pointer;
+     color: #337ab7;
+   }
 </style>

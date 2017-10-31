@@ -1,6 +1,5 @@
 <template>
   <div class="container">
-    <label>Created teams</label>
      <div v-if="createTeamErrorMessage" class="alert alert-danger">
        <strong>Error: </strong> {{createTeamErrorMessage}}
      </div>
@@ -89,7 +88,7 @@
         axios.request(config)
           .then(function (response) {
             vm.createTeamErrorMessage = ''
-            vm.teams.push({'teamName': vm.teamName})
+            vm.teams.push({'teamId': response.data.teamId, 'teamName': response.data.teamName})
           })
           .catch(function (error) {
             vm.createTeamErrorMessage = error.response.data.errorMessage
@@ -100,14 +99,14 @@
         var config = {
           method: 'DELETE',
           baseURL: this.$store.state.domain,
-          url: '/team/' + this.createdTeams[index].teamId,
+          url: '/team/' + this.teams[index].teamId,
           headers: {
             'X-Auth-Token': this.$store.state.token
           }
         }
         axios.request(config)
           .then(function (response) {
-            vm.createdTeams.splice(index, 1)
+            vm.teams.splice(index, 1)
           })
           .catch(function (error) {
             console.log(error)
