@@ -3,6 +3,10 @@
     <h2 v-if="itemId != null">Update {{itemType}} Item</h2>
     <h2 v-else="">Add {{itemType}} Item</h2>
 
+    <div v-if="createItemMessage" class="alert alert-success">
+      <strong>Info: </strong> {{createItemMessage}}
+    </div>
+
     <form class="form-horizontal">
 
       <MultiselectField fieldName="Shared teams" :options="sharedTeamsOptions" @input="sharedTeams = arguments[0]"></MultiselectField>
@@ -69,11 +73,9 @@
         additionalPlaces: '',
         readonly: false,
         description: '',
-        accessibleTeams: [
-          'team1', 'team2', 'team3'
-        ],
         eventStart: '',
-        eventEnd: ''
+        eventEnd: '',
+        createItemMessage: ''
       }
     },
     created () {
@@ -91,6 +93,7 @@
       const vm = this
       axios.request(config)
         .then(function (response) {
+          vm.sharedTeamsOptions = response.data.sharedTeamsOptions
           vm.involvedPeopleOptions = response.data.involvedPeopleOptions
           vm.involvedPlaceOptions = response.data.involvedPlaceOptions
         })
@@ -121,7 +124,7 @@
     },
     methods: {
       addItem () {
-        var router = this.$router
+        const vm = this
         var config = {
           method: 'POST',
           baseURL: this.$store.state.domain,
@@ -133,11 +136,25 @@
         }
         axios.request(config)
           .then(function (response) {
-            router.push('/openDigitalItem')
+            vm.createItemMessage = 'Item[' + response.data.name + '] is created.'
+            vm.clearData()
           })
           .catch(function (error) {
             console.log(error)
           })
+      },
+      clearData () {
+        this.itemName = ''
+        this.fileType = ''
+        this.fileSize = ''
+        this.sharedTeams = []
+        this.involvedPeople = []
+        this.additionalPeople = ''
+        this.involvedPlaces = []
+        this.additionalPlaces = ''
+        this.description = ''
+        this.eventStart = ''
+        this.eventEnd = ''
       },
       getAddItemData () {
         var data = {}
@@ -150,11 +167,13 @@
             itemType: this.itemType,
             name: this.itemName,
             fileName: this.itemName,
+            fileType: this.fileType,
+            fileSize: this.fileSize,
             originalFileName: this.itemName + '_original',
             eventStartTime: this.eventStart,
             eventEndTime: this.eventEnd,
-            involvedPeople: '',
-            involvedPlaces: '',
+            involvedPeople: this.getInvolvedPeople(),
+            involvedPlaces: this.getInvolvedPlaces(),
             description: this.description
           }
         } else {
@@ -163,25 +182,23 @@
         return data
       },
       getInvolvedPeople () {
-        var ip = []
-        ip.concat(this.involvedPeople)
         var apArray = this.getValueArray(this.additionalPeople)
-        ip.concat(apArray)
-        return ip
+        return this.involvedPeople.concat(apArray)
       },
       getInvolvedPlaces () {
-        var ip = []
-        ip.concat(this.involvedPlaces)
         var apArray = this.getValueArray(this.additionalPlaces)
-        ip.concat(apArray)
-        return ip
+        return this.involvedPlaces.concat(apArray)
       },
       getValueArray (value) {
-        var valueArray = value.split(',')
-        for (let i = 0; i < valueArray.length; i++) {
-          valueArray[i] = valueArray[i].trim()
+        if (value.trim().length > 0) {
+          var valueArray = value.split(',')
+          for (let i = 0; i < valueArray.length; i++) {
+            valueArray[i] = valueArray[i].trim()
+          }
+          return valueArray
+        } else {
+          return []
         }
-        return valueArray
       }
     }
   }

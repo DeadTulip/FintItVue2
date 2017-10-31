@@ -16,14 +16,15 @@
         <tr v-for="(item, index) in items">
           <td>{{index+1}}</td>
           <td>{{item.name}}</td>
-          <td></td>
-          <td></td>
+          <td>{{item.dateCreated}}</td>
+          <td>{{item.dateUpdated}}</td>
           <td>{{item.itemType}}</td>
           <td>{{item.owner.username}}</td>
           <td>
             <router-link :to="'/openDigitalItem/' + item.itemId">
               <span class="glyphicon glyphicon-edit"></span>
             </router-link>
+            <span class="glyphicon glyphicon-remove clickable" @click="deleteItem(index)"></span>
           </td>
         </tr>
       </tbody>
@@ -56,6 +57,32 @@
         .catch(function (error) {
           console.log(error)
         })
+    },
+    methods: {
+      deleteItem (index) {
+        const vm = this
+        var config = {
+          method: 'DELETE',
+          baseURL: this.$store.state.domain,
+          url: '/item/' + this.items[index].itemId,
+          headers: {
+            'X-Auth-Token': this.$store.state.token
+          }
+        }
+        axios.request(config)
+          .then(function (response) {
+            vm.items.splice(index, 1)
+          })
+          .catch(function (error) {
+            console.log(error)
+          })
+      }
     }
   }
 </script>
+<style scoped>
+  .clickable {
+    cursor: pointer;
+    color: #337ab7;
+  }
+</style>
