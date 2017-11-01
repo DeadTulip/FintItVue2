@@ -4,7 +4,7 @@
       {{fieldName}}: {{ mandatory ? '*' : '' }}
     </label>
     <div class="col-sm-8">
-      <multiselect v-model="selectedValues" :options="options" :multiple="true" @input="handleInput"></multiselect>
+      <multiselect v-model="selectedValues" :options="options" :multiple="true" @input="input"></multiselect>
     </div>
   </div>
 </template>
@@ -13,6 +13,10 @@
   import multiselect from 'vue-multiselect'
   export default {
     name: 'MultiselectField',
+    model: {
+      prop: 'selectedValues',
+      event: 'input'
+    },
     props: {
       fieldName: {
         type: String,
@@ -29,18 +33,17 @@
       options: {
         type: Array,
         default: []
+      },
+      selectedValues: {
+        type: Array,
+        default: function () { return [] }
       }
     },
     components: {
       multiselect
     },
-    data () {
-      return {
-        selectedValues: []
-      }
-    },
     methods: {
-      handleInput () {
+      input () {
         this.$emit('input', this.selectedValues)
       }
     }

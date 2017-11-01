@@ -4,7 +4,7 @@
       {{fieldName}}: {{ mandatory ? '*' : '' }}
     </label>
     <div class="col-sm-6">
-      <input v-model="fieldValue" class="form-control" :disabled="readonly" @input="handleInput"/>
+      <input v-model="fieldValue" class="form-control" :disabled="readonly" @input="input"/>
       <div class="errors">
 
       </div>
@@ -15,6 +15,10 @@
 <script>
   export default {
     name: 'TextField',
+    model: {
+      prop: 'fieldValue',
+      event: 'input'
+    },
     props: {
       fieldName: {
         type: String,
@@ -27,15 +31,14 @@
       readonly: {
         type: Boolean,
         default: false
-      }
-    },
-    data () {
-      return {
-        fieldValue: ''
+      },
+      fieldValue: {
+        type: String,
+        default: ''
       }
     },
     methods: {
-      handleInput () {
+      input () {
         this.$emit('input', this.fieldValue)
       }
     }

@@ -4,7 +4,7 @@
       {{fieldName}}: {{ mandatory ? '*' : '' }}
     </label>
     <div class="col-sm-3" id="eventStartDateContainer">
-      <datePicker :date="dateValue" :disabled="readonly" @change="handleInput"></datePicker>
+      <datePicker :date="dateValue" :disabled="readonly" @change="input"></datePicker>
     </div>
     <div class="errors">
 
@@ -16,6 +16,10 @@
   import datePicker from 'vue-datepicker/vue-datepicker-es6.vue'
   export default {
     name: 'DateField',
+    model: {
+      prop: 'fieldValue',
+      event: 'input'
+    },
     props: {
       fieldName: {
         type: String,
@@ -28,6 +32,10 @@
       readonly: {
         type: Boolean,
         default: false
+      },
+      fieldValue: {
+        type: String,
+        default: ''
       }
     },
     components: {
@@ -41,8 +49,13 @@
       }
     },
     methods: {
-      handleInput () {
+      input () {
         this.$emit('input', this.dateValue.time)
+      }
+    },
+    watch: {
+      fieldValue: function (val) {
+        this.dateValue.time = val
       }
     }
   }

@@ -12,9 +12,9 @@
       <MultiselectField fieldName="Shared teams" :options="sharedTeamsOptions" @input="sharedTeams = arguments[0]"></MultiselectField>
 
       <div v-if="itemType == 'Digital'">
-          <TextField fieldName="Name" :mandatory="true" @input="itemName = arguments[0]"></TextField>
-          <TextField fieldName="Type" :mandatory="true" @input="fileType = arguments[0]"></TextField>
-          <TextField fieldName="Size" :mandatory="true" @input="fileSize = arguments[0]"></TextField>
+          <TextField fieldName="Name" :mandatory="true" v-model="itemName"></TextField>
+          <TextField fieldName="Type" :mandatory="true" v-model="fileType"></TextField>
+          <TextField fieldName="Size" :mandatory="true" v-model="fileSize"></TextField>
       </div>
       <div v-if="itemType == 'Physical'">
         <div id="openPhysicalItem">
@@ -26,13 +26,13 @@
         </div>
       </div>
 
-      <DateField fieldName="Event start" @input="eventStart = arguments[0]"></DateField>
-      <DateField fieldName="Event end" @input="eventEnd = arguments[0]"></DateField>
+      <DateField fieldName="Event start" v-model="eventStart"></DateField>
+      <DateField fieldName="Event end" v-model="eventEnd"></DateField>
 
-      <MultiselectField fieldName="Involved people" :options="involvedPeopleOptions" @input="involvedPeople = arguments[0]"></MultiselectField>
+      <MultiselectField fieldName="Involved people" :options="involvedPeopleOptions" v-model="involvedPeople"></MultiselectField>
       <TextareaField fieldName="Additional people" v-model="additionalPeople"></TextareaField>
 
-      <MultiselectField fieldName="Involved places" :options="involvedPlaceOptions" @input="involvedPlaces = arguments[0]"></MultiselectField>
+      <MultiselectField fieldName="Involved places" :options="involvedPlaceOptions" v-model="involvedPlaces"></MultiselectField>
       <TextareaField fieldName="Additional places" v-model="additionalPlaces"></TextareaField>
 
       <TextareaField fieldName="Description" v-model="description"></TextareaField>
@@ -114,8 +114,12 @@
           .then(function (response) {
             vm.itemName = response.data.name
             vm.fileType = response.data.fileType
-            vm.fileSize = response.data.fileSize
+            vm.fileSize = vm.getIntegerValue(response.data.fileSize)
             vm.description = response.data.description
+            vm.eventStart = response.data.eventStartTime
+            vm.eventEnd = response.data.eventEndTime
+            vm.involvedPeople = vm.getValueArray(response.data.involvedPeople)
+            vm.involvedPlaces = vm.getValueArray(response.data.involvedPlaces)
           })
           .catch(function (error) {
             console.log(error)
@@ -198,6 +202,13 @@
           return valueArray
         } else {
           return []
+        }
+      },
+      getIntegerValue (value) {
+        if (value !== null) {
+          return value.toString()
+        } else {
+          return value
         }
       }
     }
