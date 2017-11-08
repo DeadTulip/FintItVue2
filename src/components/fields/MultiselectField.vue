@@ -14,7 +14,7 @@
   export default {
     name: 'MultiselectField',
     model: {
-      prop: 'selectedValues',
+      prop: 'value',
       event: 'input'
     },
     props: {
@@ -34,7 +34,7 @@
         type: Array,
         default: []
       },
-      selectedValues: {
+      value: {
         type: Array,
         default: function () { return [] }
       }

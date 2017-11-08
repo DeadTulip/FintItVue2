@@ -4,7 +4,7 @@
       {{fieldName}}: {{ mandatory ? '*' : '' }}
     </label>
     <div class="col-sm-8">
-      <textarea v-model="fieldValue" class="form-control" rows="3" :disabled="readonly" @input="input"/>
+      <textarea :value="value" @input="$emit('input', $event.target.value)" class="form-control" rows="3" :disabled="readonly"/>
     </div>
   </div>
 </template>
@@ -13,7 +13,7 @@
   export default {
     name: 'TextareaField',
     model: {
-      prop: 'fieldValue',
+      prop: 'value',
       event: 'input'
     },
     props: {
@@ -29,14 +29,9 @@
         type: Boolean,
         default: false
       },
-      fieldValue: {
+      value: {
         type: String,
         default: ''
-      }
-    },
-    methods: {
-      input () {
-        this.$emit('input', this.fieldValue)
       }
     }
   }

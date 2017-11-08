@@ -3,8 +3,8 @@
     <h2 v-if="itemId != null">Update {{itemType}} Item</h2>
     <h2 v-else="">Add {{itemType}} Item</h2>
 
-    <div v-if="createItemMessage" class="alert alert-success">
-      <strong>Info: </strong> {{createItemMessage}}
+    <div v-if="operateItemMessage" class="alert alert-success">
+      <strong>Info: </strong> {{operateItemMessage}}
     </div>
 
     <form class="form-horizontal">
@@ -38,9 +38,11 @@
       <TextareaField fieldName="Description" v-model="description"></TextareaField>
 
     </form>
-    <button class="btn btn-primary" name="btnAdd" @click="addItem" >
-      <label v-if="itemId != null">Update</label>
-      <label v-else>Add</label>
+    <button v-if="itemId != null" class="btn btn-primary" name="btnAdd" @click="updateItem" >
+      <label>Update</label>
+    </button>
+    <button v-else="" class="btn btn-primary" name="btnAdd" @click="addItem" >
+      <label>Add</label>
     </button>
   </div>
 </template>
@@ -75,7 +77,7 @@
         description: '',
         eventStart: '',
         eventEnd: '',
-        createItemMessage: ''
+        operateItemMessage: ''
       }
     },
     created () {
@@ -140,7 +142,7 @@
         }
         axios.request(config)
           .then(function (response) {
-            vm.createItemMessage = 'Item[' + response.data.name + '] is created.'
+            vm.operateItemMessage = 'Item[' + response.data.name + '] is created.'
             vm.clearData()
           })
           .catch(function (error) {
@@ -168,6 +170,8 @@
               userId: this.$store.state.userInfo.userId,
               username: this.$store.state.userInfo.userName
             },
+            sharedTeams: this.sharedTeams,
+            itemId: this.itemId,
             itemType: this.itemType,
             name: this.itemName,
             fileName: this.itemName,
@@ -210,6 +214,25 @@
         } else {
           return value
         }
+      },
+      updateItem () {
+        const vm = this
+        var config = {
+          method: 'PUT',
+          baseURL: this.$store.state.domain,
+          url: '/item',
+          data: this.getAddItemData(),
+          headers: {
+            'X-Auth-Token': this.$store.state.token
+          }
+        }
+        axios.request(config)
+          .then(function (response) {
+            vm.operateItemMessage = 'Item[' + response.data.name + '] is updated.'
+          })
+          .catch(function (error) {
+            console.log(error)
+          })
       }
     }
   }
