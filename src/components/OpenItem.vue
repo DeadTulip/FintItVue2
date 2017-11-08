@@ -9,12 +9,12 @@
 
     <form class="form-horizontal">
 
-      <MultiselectField fieldName="Shared teams" :options="sharedTeamsOptions" @input="sharedTeams = arguments[0]"></MultiselectField>
+      <MultiselectField fieldName="Shared teams" :options="sharedTeamsOptions" @input="sharedTeams = arguments[0]" :readonly="readonly"></MultiselectField>
 
       <div v-if="itemType == 'Digital'">
-          <TextField fieldName="Name" :mandatory="true" v-model="itemName"></TextField>
-          <TextField fieldName="Type" :mandatory="true" v-model="fileType"></TextField>
-          <TextField fieldName="Size" :mandatory="true" v-model="fileSize"></TextField>
+          <TextField fieldName="Name" :mandatory="true" :readonly="readonly" v-model="itemName"></TextField>
+          <TextField fieldName="Type" :mandatory="true" :readonly="readonly" v-model="fileType"></TextField>
+          <TextField fieldName="Size" :mandatory="true" :readonly="readonly" v-model="fileSize"></TextField>
       </div>
       <div v-if="itemType == 'Physical'">
         <div id="openPhysicalItem">
@@ -26,24 +26,26 @@
         </div>
       </div>
 
-      <DateField fieldName="Event start" v-model="eventStart"></DateField>
-      <DateField fieldName="Event end" v-model="eventEnd"></DateField>
+      <DateField fieldName="Event start" v-model="eventStart" :readonly="readonly" ></DateField>
+      <DateField fieldName="Event end" v-model="eventEnd" :readonly="readonly" ></DateField>
 
-      <MultiselectField fieldName="Involved people" :options="involvedPeopleOptions" v-model="involvedPeople"></MultiselectField>
-      <TextareaField fieldName="Additional people" v-model="additionalPeople"></TextareaField>
+      <MultiselectField fieldName="Involved people" :options="involvedPeopleOptions" v-model="involvedPeople" :readonly="readonly"></MultiselectField>
+      <TextareaField fieldName="Additional people" v-model="additionalPeople" :readonly="readonly"></TextareaField>
 
-      <MultiselectField fieldName="Involved places" :options="involvedPlaceOptions" v-model="involvedPlaces"></MultiselectField>
-      <TextareaField fieldName="Additional places" v-model="additionalPlaces"></TextareaField>
+      <MultiselectField fieldName="Involved places" :options="involvedPlaceOptions" v-model="involvedPlaces" :readonly="readonly"></MultiselectField>
+      <TextareaField fieldName="Additional places" v-model="additionalPlaces" :readonly="readonly"></TextareaField>
 
-      <TextareaField fieldName="Description" v-model="description"></TextareaField>
+      <TextareaField fieldName="Description" v-model="description" :readonly="readonly"></TextareaField>
 
     </form>
-    <button v-if="itemId != null" class="btn btn-primary" name="btnAdd" @click="updateItem" >
-      <label>Update</label>
-    </button>
-    <button v-else="" class="btn btn-primary" name="btnAdd" @click="addItem" >
-      <label>Add</label>
-    </button>
+    <span v-if="!readonly">
+      <button v-if="itemId != null" class="btn btn-primary" name="btnAdd" @click="updateItem" >
+        <label>Update</label>
+      </button>
+      <button v-else="" class="btn btn-primary" name="btnAdd" @click="addItem" >
+        <label>Add</label>
+      </button>
+    </span>
   </div>
 </template>
 
@@ -55,12 +57,13 @@
   import TextareaField from './fields/TextareaField'
 
   export default {
-    props: [ 'itemType' ],
+    props: ['itemType'],
     components: {
       TextField, DateField, MultiselectField, TextareaField
     },
     data () {
       return {
+        ownerId: '',
         itemId: this.$route.params.itemId,
         itemName: '',
         fileType: '',
@@ -122,6 +125,8 @@
             vm.eventEnd = response.data.eventEndTime
             vm.involvedPeople = vm.getValueArray(response.data.involvedPeople)
             vm.involvedPlaces = vm.getValueArray(response.data.involvedPlaces)
+            vm.ownerId = response.data.owner.userId
+            vm.readonly = vm.isReadonly()
           })
           .catch(function (error) {
             console.log(error)
@@ -233,6 +238,9 @@
           .catch(function (error) {
             console.log(error)
           })
+      },
+      isReadonly () {
+        return this.ownerId !== this.$store.state.userInfo.userId
       }
     }
   }

@@ -21,10 +21,17 @@
           <td>{{item.itemType}}</td>
           <td>{{item.owner.username}}</td>
           <td>
-            <router-link :to="'/openDigitalItem/' + item.itemId">
-              <span class="glyphicon glyphicon-edit"></span>
-            </router-link>
-            <span class="glyphicon glyphicon-remove clickable" @click="deleteItem(index)"></span>
+            <span v-if="!ownItem(index)">
+              <router-link :to="'/openDigitalItem/' + item.itemId">
+                <span class="glyphicon glyphicon-eye-open"></span>
+              </router-link>
+            </span>
+            <span v-else>
+              <router-link :to="'/openDigitalItem/' + item.itemId">
+                <span class="glyphicon glyphicon-edit"></span>
+              </router-link>
+              <span class="glyphicon glyphicon-remove clickable" @click="deleteItem(index)"></span>
+            </span>
           </td>
         </tr>
       </tbody>
@@ -76,6 +83,9 @@
           .catch(function (error) {
             console.log(error)
           })
+      },
+      ownItem (index) {
+        return this.items[index].owner.userId === this.$store.state.userInfo.userId
       }
     }
   }

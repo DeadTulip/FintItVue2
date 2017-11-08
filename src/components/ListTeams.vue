@@ -23,10 +23,12 @@
           <td>{{index+1}}</td>
           <td>{{team.teamName}}</td>
           <td>
-              <router-link :to="'/team/' + team.teamId">
-                  <span class="glyphicon glyphicon-cog"></span>
-              </router-link>
-              <span class="glyphicon glyphicon-remove clickable" @click="deleteTeam(index)"></span>
+              <span v-if="ownTeam(index)">
+                <router-link :to="'/team/' + team.teamId">
+                    <span class="glyphicon glyphicon-cog"></span>
+                </router-link>
+                <span class="glyphicon glyphicon-remove clickable" @click="deleteTeam(index)"></span>
+              </span>
           </td>
         </tr>
       </tbody>
@@ -88,7 +90,7 @@
         axios.request(config)
           .then(function (response) {
             vm.createTeamErrorMessage = ''
-            vm.teams.push({'teamId': response.data.teamId, 'teamName': response.data.teamName})
+            vm.teams.push(response.data)
           })
           .catch(function (error) {
             vm.createTeamErrorMessage = error.response.data.errorMessage
@@ -111,6 +113,9 @@
           .catch(function (error) {
             console.log(error)
           })
+      },
+      ownTeam (index) {
+        return this.teams[index].creator.userId === this.$store.state.userInfo.userId
       }
     }
   }

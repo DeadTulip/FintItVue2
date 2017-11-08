@@ -4,7 +4,7 @@
       {{fieldName}}: {{ mandatory ? '*' : '' }}
     </label>
     <div class="col-sm-8">
-      <multiselect v-model="selectedValues" :options="options" :multiple="true" @input="input"></multiselect>
+      <multiselect v-model="selectedValues" :options="options" :multiple="true" @input="input" :disabled="readonly"></multiselect>
     </div>
   </div>
 </template>
