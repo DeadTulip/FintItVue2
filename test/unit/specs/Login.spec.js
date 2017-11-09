@@ -1,10 +1,11 @@
+import assert from 'assert'
 import Login from '@/components/Login'
 
 describe('Login', () => {
   it('sets the correct default data', () => {
-    expect(typeof Login.data).to.equal('function')
+    assert.equal(typeof Login.data, 'function')
     const defaultData = Login.data()
-    expect(defaultData.username).to.equal('')
-    expect(defaultData.password).to.equal('')
+    assert.equal(defaultData.username, '')
+    assert.equal(defaultData.password, '')
   })
 })
