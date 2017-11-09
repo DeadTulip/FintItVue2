@@ -99,7 +99,6 @@ new Vue({
       store.commit('login')
     },
     logout () {
-      alert('logout')
       store.commit('logout')
     }
   }
