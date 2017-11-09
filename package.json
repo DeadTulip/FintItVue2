@@ -21,7 +21,8 @@
     "vue-fetch": "^0.9.3",
     "vue-multiselect": "^2.0.2",
     "vue-router": "^2.7.0",
-    "vuex": "^2.3.1"
+    "vuex": "^2.3.1",
+    "vuex-persistedstate": "^2.3.1"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",

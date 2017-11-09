@@ -50,6 +50,7 @@
               'X-Auth-Password': this.password
             }
           }
+          const vm = this
           this.$axios.request(config)
             .then(function (response) {
               store.state.userInfo.userId = response.data.userId
@@ -57,6 +58,7 @@
               store.state.userInfo.userRoles = response.data.userRoles
               store.state.token = response.data.token
               store.state.isLoggedOn = true
+              vm.$root.login()
               if (store.state.userInfo.userRoles.includes('ADMIN')) {
                 router.push('/listUsers')
               } else {

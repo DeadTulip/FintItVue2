@@ -17,11 +17,11 @@
                   <span @click="clickOpenDigitalItem">Add Disk Item</span>
                 </router-link>
               </li>
-              <li>
-                <router-link :to="'/openPhysicalItem'">
-                  <span @click="clickOpenPhysicalItem">Add Physical Item</span>
-                </router-link>
-              </li>
+              <!--<li>-->
+                <!--<router-link :to="'/openPhysicalItem'">-->
+                  <!--<span @click="clickOpenPhysicalItem">Add Physical Item</span>-->
+                <!--</router-link>-->
+              <!--</li>-->
             </ul>
           </li>
           <li v-bind:class="{active: activeMenu == 'listItems'}">
@@ -44,7 +44,11 @@
             <a><span class="glyphicon glyphicon-user"></span> {{userName}}</a>
           </li>
           <li>
-            <a><span class="glyphicon glyphicon-log-out"></span> Logout</a>
+            <router-link :to="'/login'">
+              <span @click="logout">
+                <a><span class="glyphicon glyphicon-log-out"></span> Logout</a>
+              </span>
+            </router-link>
           </li>
         </ul>
       </template>
@@ -79,6 +83,15 @@
       },
       clickListTeams () {
         this.activeMenu = 'listTeams'
+      },
+      logout () {
+        var store = this.$store
+        store.state.userInfo.userId = ''
+        store.state.userInfo.userName = ''
+        store.state.userInfo.userRoles = []
+        store.state.token = ''
+        store.state.isLoggedOn = false
+        this.$root.logout()
       }
     }
   }

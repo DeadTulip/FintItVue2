@@ -5,6 +5,7 @@ import App from './App'
 import Vuex from 'vuex'
 import VueRouter from 'vue-router'
 import axios from 'axios'
+import createPersistedState from 'vuex-persistedstate'
 
 import Welcome from './components/Welcome'
 import Login from './components/Login'
@@ -63,13 +64,14 @@ const store = new Vuex.Store({
       userRoles: []
     },
     token: '',
-    isLoggedOn: false
+    isLoggedOn: false,
+    count: 0
   },
   mutations: {
-    updateUserInfo (state, newUserInfo) {
-      state.userInfo = newUserInfo
-    }
-  }
+    login: state => state.count++,
+    logout: state => state.count--
+  },
+  plugins: [createPersistedState()]
 })
 
 /* eslint-disable no-new */
@@ -89,8 +91,16 @@ new Vue({
       if (this.$store.state.token === '') {
         this.$router.push('/login')
       } else {
-        this.$router.push('/listTeams')
+        var curPath = this.$router.currentRoute.fullPath
+        this.$router.push(curPath)
       }
+    },
+    login () {
+      store.commit('login')
+    },
+    logout () {
+      alert('logout')
+      store.commit('logout')
     }
   }
 })
