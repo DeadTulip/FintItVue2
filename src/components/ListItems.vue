@@ -64,6 +64,7 @@
         .catch(function (error) {
           console.log(error)
         })
+      console.log(vm.items.length)
     },
     methods: {
       deleteItem (index) {

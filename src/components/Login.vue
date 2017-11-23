@@ -17,11 +17,12 @@
         </label>
       </div>
       <button class="btn btn-default" name="btnRegister" type="submit">Register</button>
-      <button class="btn btn-primary" name="btnSignIn" @click="tryLogin" >Sign in</button>
+      <button class="btn btn-primary" name="btnSignIn" id="btnSignIn" @click="tryLogin" >Sign in</button>
 
   </div>
 </template>
 <script>
+  import axios from 'axios'
   export default {
     name: 'Login',
     props: [ 'errorMsg' ],
@@ -38,6 +39,7 @@
     },
     methods: {
       tryLogin () {
+        console.log(this.$store)
         if (this.username !== '' && this.password !== '') {
           var store = this.$store
           var router = this.$router
@@ -51,7 +53,7 @@
             }
           }
           const vm = this
-          this.$axios.request(config)
+          axios.request(config)
             .then(function (response) {
               store.state.userInfo.userId = response.data.userId
               store.state.userInfo.userName = response.data.userName
