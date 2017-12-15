@@ -53,15 +53,8 @@
       }
     },
     created () {
+      var config = this.$store.getters.axiosTokenConfig('GET', '/user/' + this.$store.state.userInfo.userId + '/teams')
       const vm = this
-      var config = {
-        method: 'GET',
-        baseURL: this.$store.state.domain,
-        url: '/user/' + this.$store.state.userInfo.userId + '/teams',
-        headers: {
-          'X-Auth-Token': this.$store.state.token
-        }
-      }
       axios.request(config)
         .then(function (response) {
           vm.teams = response.data
@@ -72,21 +65,14 @@
     },
     methods: {
       createTeam () {
-        const vm = this
-        var config = {
-          method: 'POST',
-          baseURL: this.$store.state.domain,
-          url: '/team',
-          data: {
-            teamName: vm.teamName,
-            creator: {
-              userId: this.$store.state.userInfo.userId
-            }
-          },
-          headers: {
-            'X-Auth-Token': this.$store.state.token
+        var config = this.$store.getters.axiosTokenConfig('POST', '/team')
+        config.data = {
+          teamName: this.teamName,
+          creator: {
+            userId: this.$store.state.userInfo.userId
           }
         }
+        const vm = this
         axios.request(config)
           .then(function (response) {
             vm.createTeamErrorMessage = ''
@@ -97,15 +83,8 @@
           })
       },
       deleteTeam (index) {
+        var config = this.$store.getters.axiosTokenConfig('DELETE', '/team/' + this.teams[index].teamId)
         const vm = this
-        var config = {
-          method: 'DELETE',
-          baseURL: this.$store.state.domain,
-          url: '/team/' + this.teams[index].teamId,
-          headers: {
-            'X-Auth-Token': this.$store.state.token
-          }
-        }
         axios.request(config)
           .then(function (response) {
             vm.teams.splice(index, 1)

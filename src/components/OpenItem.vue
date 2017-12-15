@@ -9,13 +9,11 @@
 
     <form class="form-horizontal">
 
-      <MultiselectField fieldName="Shared teams" :options="sharedTeamsOptions" @input="sharedTeams = arguments[0]" :readonly="readonly"></MultiselectField>
+      <TextField fieldName="Item name" v-model="itemName" :readonly="readonly" :mandatory="true"></TextField>
 
-      <div v-if="itemType == 'Digital'">
-          <TextField fieldName="Name" :mandatory="true" :readonly="readonly" v-model="itemName"></TextField>
-          <TextField fieldName="Type" :mandatory="true" :readonly="readonly" v-model="fileType"></TextField>
-          <TextField fieldName="Size" :mandatory="true" :readonly="readonly" v-model="fileSize"></TextField>
-      </div>
+
+      <p>My File Selector: <FileSelectField v-model="file" @input="fileChange"></FileSelectField></p>
+
       <div v-if="itemType == 'Physical'">
         <div id="openPhysicalItem">
           <div class="form-group">
@@ -37,6 +35,7 @@
 
       <TextareaField fieldName="Description" v-model="description" :readonly="readonly"></TextareaField>
 
+      <MultiselectField fieldName="Shared teams" :options="sharedTeamsOptions" @input="sharedTeams = arguments[0]" :readonly="readonly"></MultiselectField>
     </form>
     <span v-if="!readonly">
       <button v-if="itemId != null" class="btn btn-primary" name="btnAdd" @click="updateItem" >
@@ -55,17 +54,20 @@
   import DateField from './fields/DateField'
   import MultiselectField from './fields/MultiselectField'
   import TextareaField from './fields/TextareaField'
+  import FileSelectField from './fields/FileSelectField'
 
   export default {
     props: ['itemType'],
     components: {
-      TextField, DateField, MultiselectField, TextareaField
+      TextField, DateField, MultiselectField, TextareaField, FileSelectField
     },
     data () {
       return {
         ownerId: '',
         itemId: this.$route.params.itemId,
         itemName: '',
+        file: null,
+        fileBase64: '',
         fileType: '',
         fileSize: '',
         sharedTeams: [],
@@ -135,24 +137,31 @@
     },
     methods: {
       addItem () {
+        var config = this.$store.getters.axiosTokenConfig('POST', '/item')
+        config.data = this.getAddItemData()
         const vm = this
-        var config = {
-          method: 'POST',
-          baseURL: this.$store.state.domain,
-          url: '/item',
-          data: this.getAddItemData(),
-          headers: {
-            'X-Auth-Token': this.$store.state.token
-          }
-        }
         axios.request(config)
           .then(function (response) {
+            vm.itemId = response.data.itemId
             vm.operateItemMessage = 'Item[' + response.data.name + '] is created.'
             vm.clearData()
           })
           .catch(function (error) {
             console.log(error)
           })
+      },
+      fileChange () {
+        const vm = this
+        var reader = new FileReader()
+        reader.readAsDataURL(this.file)
+        reader.onload = function () {
+          vm.fileBase64 = reader.result
+          vm.fileType = vm.file.type
+          vm.fileSize = vm.file.size
+        }
+        reader.onerror = function (error) {
+          console.log('Error: ', error)
+        }
       },
       clearData () {
         this.itemName = ''
@@ -175,19 +184,19 @@
               userId: this.$store.state.userInfo.userId,
               username: this.$store.state.userInfo.userName
             },
-            sharedTeams: this.sharedTeams,
             itemId: this.itemId,
             itemType: this.itemType,
             name: this.itemName,
-            fileName: this.itemName,
+            fileContent: this.fileBase64,
             fileType: this.fileType,
             fileSize: this.fileSize,
-            originalFileName: this.itemName + '_original',
+            originalFileName: this.file.name,
             eventStartTime: this.eventStart,
             eventEndTime: this.eventEnd,
             involvedPeople: this.getInvolvedPeople(),
             involvedPlaces: this.getInvolvedPlaces(),
-            description: this.description
+            description: this.description,
+            sharedTeams: this.sharedTeams
           }
         } else {
 
@@ -246,3 +255,17 @@
   }
 </script>
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
+<style scoped>
+  .file-select > .select-button {
+    padding: 10px;
+    color: white;
+    background-color: #337ab7;
+    border-radius: .3rem;
+    text-align: center;
+  }
+
+  /* Don't forget to hide the original file input! */
+  .file-select > input[type="file"] {
+    display: none;
+  }
+</style>

@@ -87,17 +87,8 @@
         this.activeMenu = 'listTeams'
       },
       logout () {
-        var store = this.$store
-        store.state.userInfo.userId = ''
-        store.state.userInfo.userName = ''
-        store.state.userInfo.userRoles = []
-        store.state.token = ''
-        store.state.isLoggedOn = false
-        this.$root.logout()
+        this.$store.commit('logout')
       }
     }
   }
 </script>
-
-<style>
-</style>

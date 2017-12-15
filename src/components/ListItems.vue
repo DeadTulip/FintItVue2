@@ -48,14 +48,7 @@
       }
     },
     created () {
-      var config = {
-        method: 'GET',
-        baseURL: this.$store.state.domain,
-        url: '/user/' + this.$store.state.userInfo.userId + '/items',
-        headers: {
-          'X-Auth-Token': this.$store.state.token
-        }
-      }
+      var config = this.$store.getters.axiosTokenConfig('GET', '/user/' + this.$store.state.userInfo.userId + '/items')
       const vm = this
       axios.request(config)
         .then(function (response) {
@@ -64,19 +57,11 @@
         .catch(function (error) {
           console.log(error)
         })
-      console.log(vm.items.length)
     },
     methods: {
       deleteItem (index) {
+        var config = this.$store.getters.axiosTokenConfig('DELETE', '/item/' + this.items[index].itemId)
         const vm = this
-        var config = {
-          method: 'DELETE',
-          baseURL: this.$store.state.domain,
-          url: '/item/' + this.items[index].itemId,
-          headers: {
-            'X-Auth-Token': this.$store.state.token
-          }
-        }
         axios.request(config)
           .then(function (response) {
             vm.items.splice(index, 1)
