@@ -12,14 +12,14 @@
           <button class="btn btn-primary" @click="createUser">Create user</button>
       </span>
     </div>
-
-    <table class="table table-bordered">
+    <br>
+    <table class="table table-striped">
       <thead>
       <tr>
-        <th>#</th>
-        <th data-sortable="true">user id</th>
-        <th data-sortable="true">user name</th>
-        <th data-sortable="true">delete</th>
+        <th class="col-md-1">#</th>
+        <th class="col-md-1" data-sortable="true">User id</th>
+        <th class="col-md-6" data-sortable="true">User name</th>
+        <th class="col-md-1" data-sortable="true">Remove user</th>
       </tr>
       </thead>
       <tbody>
@@ -68,17 +68,10 @@
     methods: {
       createUser () {
         const vm = this
-        var config = {
-          method: 'POST',
-          baseURL: this.$store.state.domain,
-          url: '/user',
-          data: {
-            username: vm.toCreateUsername,
-            password: vm.toCreatePassword
-          },
-          headers: {
-            'X-Auth-Token': this.$store.state.token
-          }
+        var config = this.$store.getters.axiosTokenConfig('POST', '/user')
+        config.data = {
+          username: vm.toCreateUsername,
+          password: vm.toCreatePassword
         }
         axios.request(config)
           .then(function (response) {

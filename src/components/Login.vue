@@ -1,6 +1,7 @@
 <template>
-  <div class="container">
-      <h2 class="form-signin-heading">Sign in</h2>
+  <div id="loginForm" class="container center-block">
+      <div id="verticalSpace"></div>
+      <h2 class="form-signin-heading">Welcome</h2>
       <template v-if="errorMessageExist">
       <div class="alert alert-warning">
         <strong>{{errorMsg}}</strong>
@@ -11,12 +12,6 @@
       <input type="password" name="password" v-model="password"
              placeholder="Password" id="password" class='formLogin form-control' />
 
-      <div class="checkbox">
-        <label>
-          <input type="checkbox" value="remember-me"> Remember me
-        </label>
-      </div>
-      <button class="btn btn-default" name="btnRegister" type="submit">Register</button>
       <button class="btn btn-primary" name="btnSignIn" id="btnSignIn" @click="tryLogin" >Sign in</button>
 
   </div>
@@ -39,28 +34,26 @@
     },
     methods: {
       tryLogin () {
-        console.log(this.$store)
         if (this.username !== '' && this.password !== '') {
           var store = this.$store
           var router = this.$router
           var config = {
             method: 'POST',
-            baseURL: this.$store.state.domain,
+            baseURL: store.state.domain,
             url: '/authenticate',
             headers: {
               'X-Auth-Username': this.username,
               'X-Auth-Password': this.password
             }
           }
-          const vm = this
           axios.request(config)
             .then(function (response) {
-              store.state.userInfo.userId = response.data.userId
-              store.state.userInfo.userName = response.data.userName
-              store.state.userInfo.userRoles = response.data.userRoles
-              store.state.token = response.data.token
-              store.state.isLoggedOn = true
-              vm.$root.login()
+              store.commit('login', {
+                userId: response.data.userId,
+                userName: response.data.userName,
+                userRoles: response.data.userRoles,
+                token: response.data.token
+              })
               if (store.state.userInfo.userRoles.includes('ADMIN')) {
                 router.push('/listUsers')
               } else {
@@ -72,10 +65,21 @@
               router.push('/errorLogin')
             })
         } else {
-          this.$router.push('/errorLogin')
+          router.push('/errorLogin')
         }
       }
     }
 
   }
 </script>
+<style scoped>
+  #loginForm {
+    width: 40%;
+  }
+  #loginForm #verticalSpace {
+    height: 100px;
+  }
+  #loginForm input {
+    margin-bottom: 5px;
+  }
+</style>

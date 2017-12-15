@@ -64,12 +64,37 @@ const store = new Vuex.Store({
       userRoles: []
     },
     token: '',
-    isLoggedOn: false,
-    count: 0
+    isLoggedOn: false
   },
   mutations: {
-    login: state => state.count++,
-    logout: state => state.count--
+    login: (state, payload) => {
+      state.userInfo.userId = payload.userId
+      state.userInfo.userName = payload.userName
+      state.userInfo.userRoles = payload.userRoles
+      state.token = payload.token
+      state.isLoggedOn = true
+    },
+    logout: state => {
+      state.userInfo.userId = ''
+      state.userInfo.userName = ''
+      state.userInfo.userRoles = []
+      state.token = ''
+      state.isLoggedOn = false
+    }
+  },
+  getters: {
+    axiosTokenConfig (state) {
+      return (method, url) => {
+        return {
+          method: method,
+          baseURL: state.domain,
+          url: url,
+          headers: {
+            'X-Auth-Token': state.token
+          }
+        }
+      }
+    }
   },
   plugins: [createPersistedState()]
 })
@@ -94,12 +119,6 @@ new Vue({
         var curPath = this.$router.currentRoute.fullPath
         this.$router.push(curPath)
       }
-    },
-    login () {
-      store.commit('login')
-    },
-    logout () {
-      store.commit('logout')
     }
   }
 })
