@@ -4,7 +4,8 @@
       {{fieldName}}: {{ mandatory ? '*' : '' }}
     </label>
     <div class="col-sm-8">
-      <textarea :value="value" @input="$emit('input', $event.target.value)" class="form-control" rows="3" :disabled="readonly"/>
+      <textarea v-if="!readonly" :value="value" @input="$emit('input', $event.target.value)" class="form-control" rows="3"/>
+      <div v-else class="readonlyLabel">{{selectedValues}}</div>
     </div>
   </div>
 </template>

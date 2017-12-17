@@ -7,13 +7,8 @@
       <strong>Info: </strong> {{operateItemMessage}}
     </div>
 
-    <form class="form-horizontal">
-
+    <form class="form-horizontal col-lg-6 col-md-6">
       <TextField fieldName="Item name" v-model="itemName" :readonly="readonly" :mandatory="true"></TextField>
-
-
-      <p>My File Selector: <FileSelectField v-model="file" @input="fileChange"></FileSelectField></p>
-
       <div v-if="itemType == 'Physical'">
         <div id="openPhysicalItem">
           <div class="form-group">
@@ -35,16 +30,23 @@
 
       <TextareaField fieldName="Description" v-model="description" :readonly="readonly"></TextareaField>
 
-      <MultiselectField fieldName="Shared teams" :options="sharedTeamsOptions" @input="sharedTeams = arguments[0]" :readonly="readonly"></MultiselectField>
+      <MultiselectField fieldName="Shared teams" :options="sharedTeamsOptions" v-model="sharedTeams" :readonly="readonly"></MultiselectField>
     </form>
-    <span v-if="!readonly">
-      <button v-if="itemId != null" class="btn btn-primary" name="btnAdd" @click="updateItem" >
+    <div id="imgViewer" class="col-lg-6 col-md-6">
+      <FileSelectField v-if="!readonly" v-model="file" @input="fileChange"></FileSelectField>
+      <img v-if="fileBase64 && isImage" :src="fileBase64" style="max-width: 100%" :download="fileName"/>
+      <div v-if="fileBase64 && !isImage" class="alert alert-warning">
+        <strong>Warning!</strong> {{fileType}} is not supported yet.
+      </div>
+    </div>
+    <div v-if="!readonly">
+      <button v-if="itemId != null" class="btn btn-primary operationBtn" name="btnAdd" @click="updateItem" >
         <label>Update</label>
       </button>
-      <button v-else="" class="btn btn-primary" name="btnAdd" @click="addItem" >
+      <button v-else="" class="btn btn-primary operationBtn" name="btnAdd" @click="addItem" >
         <label>Add</label>
       </button>
-    </span>
+    </div>
   </div>
 </template>
 
@@ -67,6 +69,7 @@
         itemId: this.$route.params.itemId,
         itemName: '',
         file: null,
+        fileName: '',
         fileBase64: '',
         fileType: '',
         fileSize: '',
@@ -78,64 +81,66 @@
         involvedPlaces: [],
         involvedPlaceOptions: [],
         additionalPlaces: '',
-        readonly: false,
         description: '',
         eventStart: '',
         eventEnd: '',
         operateItemMessage: ''
       }
     },
-    created () {
-      var config = {
-        method: 'POST',
-        baseURL: this.$store.state.domain,
-        url: '/item/toAdd',
-        data: {
-          userId: this.$store.state.userInfo.userId
-        },
-        headers: {
-          'X-Auth-Token': this.$store.state.token
-        }
+    computed: {
+      isImage () {
+        return this.fileType.indexOf('jpeg') !== -1
+      },
+      readonly () {
+        return this.itemId !== undefined && this.ownerId !== this.$store.state.userInfo.userId
       }
-      const vm = this
-      axios.request(config)
-        .then(function (response) {
-          vm.sharedTeamsOptions = response.data.sharedTeamsOptions
-          vm.involvedPeopleOptions = response.data.involvedPeopleOptions
-          vm.involvedPlaceOptions = response.data.involvedPlaceOptions
-        })
-        .catch(function (error) {
-          console.log(error)
-        })
-
+    },
+    created () {
+      this.initOptions()
       if (this.itemId != null) {
-        var configForGettingItem = {
-          method: 'GET',
-          baseURL: this.$store.state.domain,
-          url: '/item/' + this.itemId,
-          headers: {
-            'X-Auth-Token': this.$store.state.token
-          }
+        this.initItem()
+      }
+    },
+    methods: {
+      initOptions () {
+        var config = this.$store.getters.axiosTokenConfig('POST', '/item/toAdd')
+        config.data = {
+          userId: this.$store.state.userInfo.userId
         }
-        axios.request(configForGettingItem)
+        const vm = this
+        axios.request(config)
           .then(function (response) {
-            vm.itemName = response.data.name
-            vm.fileType = response.data.fileType
-            vm.fileSize = vm.getIntegerValue(response.data.fileSize)
-            vm.description = response.data.description
-            vm.eventStart = response.data.eventStartTime
-            vm.eventEnd = response.data.eventEndTime
-            vm.involvedPeople = vm.getValueArray(response.data.involvedPeople)
-            vm.involvedPlaces = vm.getValueArray(response.data.involvedPlaces)
-            vm.ownerId = response.data.owner.userId
-            vm.readonly = vm.isReadonly()
+            vm.sharedTeamsOptions = response.data.sharedTeamsOptions
+            vm.involvedPeopleOptions = response.data.involvedPeopleOptions
+            vm.involvedPlaceOptions = response.data.involvedPlaceOptions
           })
           .catch(function (error) {
             console.log(error)
           })
-      }
-    },
-    methods: {
+      },
+      initItem () {
+        var config = this.$store.getters.axiosTokenConfig('GET', '/item/' + this.itemId)
+        const vm = this
+        axios.request(config)
+          .then(function (response) {
+            const data = response.data
+            vm.itemName = data.name
+            vm.fileName = data.originalFileName
+            vm.fileType = data.fileType
+            vm.fileSize = vm.getIntegerValue(data.fileSize)
+            vm.description = data.description
+            vm.eventStart = data.eventStartTime
+            vm.eventEnd = data.eventEndTime
+            vm.fileBase64 = data.fileContent
+            vm.involvedPeople = vm.getValueArray(data.involvedPeople)
+            vm.involvedPlaces = vm.getValueArray(data.involvedPlaces)
+            vm.ownerId = data.owner.userId
+            vm.sharedTeams = data.sharedTeams
+          })
+          .catch(function (error) {
+            console.log(error)
+          })
+      },
       addItem () {
         var config = this.$store.getters.axiosTokenConfig('POST', '/item')
         config.data = this.getAddItemData()
@@ -156,6 +161,7 @@
         reader.readAsDataURL(this.file)
         reader.onload = function () {
           vm.fileBase64 = reader.result
+          vm.fileName = vm.file.name
           vm.fileType = vm.file.type
           vm.fileSize = vm.file.size
         }
@@ -175,6 +181,11 @@
         this.description = ''
         this.eventStart = ''
         this.eventEnd = ''
+        this.file = null
+        this.fileName = ''
+        this.fileBase64 = ''
+        this.fileType = ''
+        this.fileSize = ''
       },
       getAddItemData () {
         var data = {}
@@ -190,7 +201,7 @@
             fileContent: this.fileBase64,
             fileType: this.fileType,
             fileSize: this.fileSize,
-            originalFileName: this.file.name,
+            originalFileName: this.fileName,
             eventStartTime: this.eventStart,
             eventEndTime: this.eventEnd,
             involvedPeople: this.getInvolvedPeople(),
@@ -230,16 +241,9 @@
         }
       },
       updateItem () {
+        var config = this.$store.getters.axiosTokenConfig('PUT', '/item')
+        config.data = this.getAddItemData()
         const vm = this
-        var config = {
-          method: 'PUT',
-          baseURL: this.$store.state.domain,
-          url: '/item',
-          data: this.getAddItemData(),
-          headers: {
-            'X-Auth-Token': this.$store.state.token
-          }
-        }
         axios.request(config)
           .then(function (response) {
             vm.operateItemMessage = 'Item[' + response.data.name + '] is updated.'
@@ -247,9 +251,6 @@
           .catch(function (error) {
             console.log(error)
           })
-      },
-      isReadonly () {
-        return this.ownerId !== this.$store.state.userInfo.userId
       }
     }
   }
@@ -267,5 +268,18 @@
   /* Don't forget to hide the original file input! */
   .file-select > input[type="file"] {
     display: none;
+  }
+
+  div#imgViewer {
+    border: 1px solid lightgrey;
+    min-height: 570px;
+    padding: 0px;
+  }
+
+  .operationBtn {
+    width: 200px;
+    text-align: center;
+    float: right;
+    margin: 20px;
   }
 </style>

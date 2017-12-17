@@ -7,11 +7,11 @@
       <div v-if="!readonly" class="input-group">
         <datePicker :date="dateValue" @change="input"></datePicker>
         <span class="input-group-btn">
-          <button class="btn btn-primary" @click="setDateToToday">Today</button>
+          <button id="todayBtn" class="btn btn-secondary" @click="setDateToToday">Today</button>
         </span>
       </div>
       <span v-else>
-        <input :value="dateValue.time" class="form-control" :disabled="true" />
+        <div class="readonlyLabel">{{dateValue.time}}</div>
       </span>
     </div>
     <div class="errors">
@@ -82,3 +82,11 @@
     }
   }
 </script>
+<style scoped>
+  button#todayBtn {
+    height: 38px;
+  }
+  div.readonlyLabel {
+    margin-top: 10px
+  }
+</style>

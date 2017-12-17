@@ -4,7 +4,8 @@
       {{fieldName}}: {{ mandatory ? '*' : '' }}
     </label>
     <div class="col-sm-8">
-      <multiselect v-model="selectedValues" :options="options" :multiple="true" @input="input" :disabled="readonly"></multiselect>
+      <multiselect v-if="!readonly" v-model="selectedValues" :options="options" :multiple="true" @input="input"></multiselect>
+      <div v-else class="readonlyLabel">{{selectedValues}}</div>
     </div>
   </div>
 </template>
@@ -49,3 +50,8 @@
     }
   }
 </script>
+<style scoped>
+  div.readonlyLabel {
+    margin-top: 10px
+  }
+</style>

@@ -9,7 +9,7 @@
                     <button class="btn btn-primary" type="submit" @click="createTeam">Create team</button>
                 </span>
       </div>
-
+    <br>
     <table class="table table-bordered">
       <thead>
       <tr>
