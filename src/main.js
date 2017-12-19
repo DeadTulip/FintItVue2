@@ -57,7 +57,7 @@ const router = new VueRouter({
 
 const store = new Vuex.Store({
   state: {
-    domain: 'http://localhost:8090',
+    domain: 'http://localhost:38083/findit2-backend',
     userInfo: {
       userId: '',
       userName: '',
